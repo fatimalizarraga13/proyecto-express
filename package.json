@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/fatimalizarraga13/proyecto-express#readme",
   "dependencies": {
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "pg": "^8.20.0"
   }
 }
