@@ -1,15 +1,11 @@
 const pool = require('./db');
 const express = require('express');
-const app = express();
+const app = express();app.use(express.json());
 
-app.use(express.json()); // 👈 NECESARIO
-
-// Ruta base
 app.get('/', (req, res) => {
   res.send('API funcionando');
 });
 
-// GET alumnos
 app.get('/alumnos', async (req, res) => {
   try {
     const resultado = await pool.query('SELECT * FROM alumno');
@@ -19,13 +15,22 @@ app.get('/alumnos', async (req, res) => {
     res.status(500).json({ error: 'Error al obtener los alumnos' });
   }
 });
+// get materias
+app.get('/materias', async (req, res) => {
+  try {
+    const resultado = await pool.query('SELECT * FROM materia');
+    res.json(resultado.rows);
+  } catch (error) {
+    console.error('Error al consultar materias:', error);
+    res.status(500).json({ error: 'Error al obtener las materias' });
+  }
+});
 
-// POST alumnos
 app.post('/alumnos', async (req, res) => {
   try {
     const { nombre, apellido, edad, correo } = req.body;
 
-    // Validación
+  
     if (!nombre || !apellido || !edad || !correo) {
       return res.status(400).json({ error: 'Todos los campos son obligatorios' });
     }
@@ -43,6 +48,32 @@ app.post('/alumnos', async (req, res) => {
   } catch (error) {
     console.error('Error al insertar alumno:', error);
     res.status(500).json({ error: 'Error al insertar el alumno' });
+  }
+});
+
+// POST materias
+app.post('/materias', async (req, res) => {
+  try {
+    const { nombre, semestre, creditos } = req.body;
+
+    
+    if (!nombre || !semestre || !creditos) {
+      return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+    }
+
+    const resultado = await pool.query(
+      'INSERT INTO materia (nombre, semestre, creditos) VALUES ($1, $2, $3) RETURNING *',
+      [nombre, semestre, creditos]
+    );
+
+    res.status(201).json({
+      mensaje: 'Materia insertada correctamente',
+      materia: resultado.rows[0]
+    });
+
+  } catch (error) {
+    console.error('Error al insertar materia:', error);
+    res.status(500).json({ error: 'Error al insertar la materia' });
   }
 });
 
